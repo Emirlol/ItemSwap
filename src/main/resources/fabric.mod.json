@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Self-descriptive.",
+  "authors": [
+    "Lumiafk"
+  ],
+  "contact": {
+    "repo": "https://github.com/Emirlol/TemplateMod"
+  },
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      {
+        "value": "me.lumiafk.templatemod.TemplateMod",
+        "side": "client",
+        "adapter": "kotlin"
+      }
+    ],
+    "modmenu": [ "me.lumiafk.templatemod.modmenu.ModMenuApiImpl" ]
+  },
+  "mixins": [
+    "templatemod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_version}",
+    "yet_another_config_lib_v3": ">=${yacl_version}",
+    "modmenu": ">=${modmenu_version}"
+  }
+}
