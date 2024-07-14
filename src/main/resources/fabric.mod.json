@@ -22,9 +22,6 @@
     ],
     "modmenu": [ "me.lumiafk.itemswap.modmenu.ModMenuApiImpl" ]
   },
-  "mixins": [
-    "itemswap.mixins.json"
-  ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
