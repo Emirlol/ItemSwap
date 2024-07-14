@@ -6,4 +6,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = "TemplateMod"
+rootProject.name = "ItemSwap"

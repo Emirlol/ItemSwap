@@ -15,22 +15,24 @@
   "entrypoints": {
     "client": [
       {
-        "value": "me.lumiafk.templatemod.TemplateMod",
+        "value": "me.lumiafk.itemswap.ItemSwap::onInitializeClient",
         "side": "client",
         "adapter": "kotlin"
       }
     ],
-    "modmenu": [ "me.lumiafk.templatemod.modmenu.ModMenuApiImpl" ]
+    "modmenu": [ "me.lumiafk.itemswap.modmenu.ModMenuApiImpl" ]
   },
   "mixins": [
-    "templatemod.mixins.json"
+    "itemswap.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": ">=${minecraft_version}",
     "fabric-language-kotlin": ">=${fabric_kotlin_version}",
-    "yet_another_config_lib_v3": ">=${yacl_version}",
+    "yet_another_config_lib_v3": ">=${yacl_version}"
+  },
+  "suggests": {
     "modmenu": ">=${modmenu_version}"
   }
 }

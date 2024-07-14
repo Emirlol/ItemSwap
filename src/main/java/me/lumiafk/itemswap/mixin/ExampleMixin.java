@@ -1,4 +1,4 @@
-package me.lumiafk.templatemod.mixin;
+package me.lumiafk.itemswap.mixin;
 
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
