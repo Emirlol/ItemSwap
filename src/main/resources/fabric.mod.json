@@ -8,7 +8,9 @@
     "Lumiafk"
   ],
   "contact": {
-    "repo": "https://github.com/Emirlol/TemplateMod"
+    "sources": "https://github.com/Emirlol/ItemSwap",
+    "issues": "https://github.com/Emirlol/ItemSwap/issues",
+    "homepage": "https://modrinth.com/project/itemswap"
   },
   "license": "WTFPL",
   "environment": "client",
