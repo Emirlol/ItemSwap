@@ -10,7 +10,7 @@
   "contact": {
     "repo": "https://github.com/Emirlol/TemplateMod"
   },
-  "license": "All-Rights-Reserved",
+  "license": "WTFPL",
   "environment": "client",
   "entrypoints": {
     "client": [
