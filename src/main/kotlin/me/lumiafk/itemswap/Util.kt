@@ -1,6 +1,5 @@
 package me.lumiafk.itemswap
 
-import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
 object Util {

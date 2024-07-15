@@ -14,8 +14,6 @@ import net.minecraft.screen.slot.SlotActionType
 import org.lwjgl.glfw.GLFW
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.reflect.KMutableProperty0
-import kotlin.reflect.jvm.javaGetter
 
 object ItemSwap {
 	@Suppress("unused")
