@@ -20,7 +20,8 @@ val loaderVersion = property("fabric_loader_version") as String
 
 val modName = property("mod_name") as String
 val modId = property("mod_id") as String
-version = property("mod_version") as String + "+" + minecraftVersion
+val modVersion = property("mod_version") as String
+version = "$modVersion+$minecraftVersion"
 group = property("maven_group") as String
 
 val fabricApiVersion = property("fabric_api_version") as String
@@ -89,7 +90,7 @@ publishMods {
 	file = tasks.remapJar.get().archiveFile
 	modLoaders.add("fabric")
 	type = STABLE
-	displayName = "Item Swap ${version.get()} for $minecraftVersion"
+	displayName = "Item Swap $modVersion for $minecraftVersion"
 	changelog = "Initial release"
 	modrinth {
 		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
