@@ -1,6 +1,7 @@
 plugins {
 	id("fabric-loom") version "1.7-SNAPSHOT"
 	kotlin("jvm") version "2.0.0"
+	id("me.modmuss50.mod-publish-plugin") version "0.6.0"
 }
 
 repositories {
@@ -19,7 +20,7 @@ val loaderVersion = property("fabric_loader_version") as String
 
 val modName = property("mod_name") as String
 val modId = property("mod_id") as String
-version = property("mod_version") as String
+version = property("mod_version") as String + "+" + minecraftVersion
 group = property("maven_group") as String
 
 val fabricApiVersion = property("fabric_api_version") as String
@@ -28,7 +29,7 @@ val yaclVersion = property("yacl_version") as String
 val modmenuVersion = property("modmenu_version") as String
 
 dependencies {
-	// To change the versions see the gradle.properties file
+	// To change the versions, see the gradle.properties file
 	minecraft("com.mojang:minecraft:$minecraftVersion")
 	mappings("net.fabricmc:yarn:$yarnMappings:v2")
 	modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
@@ -63,6 +64,15 @@ tasks {
 			)
 		}
 	}
+	jar {
+		from("LICENSE") {
+			rename { "${it}_${base.archivesName.get()}"}
+		}
+	}
+}
+
+base {
+	archivesName = modName
 }
 
 kotlin {
@@ -72,6 +82,23 @@ kotlin {
 idea {
 	module {
 		excludeDirs.addAll(listOf(file("run"), file(".kotlin")))
+	}
+}
+
+publishMods {
+	file = tasks.remapJar.get().archiveFile
+	modLoaders.add("fabric")
+	type = STABLE
+	displayName = "Item Swap ${version.get()} for $minecraftVersion"
+	changelog = "Initial release"
+	modrinth {
+		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+		projectId = "baQgLwO4"
+		minecraftVersions.addAll("1.20.5", "1.20.6")
+		requires("fabric-api")
+		requires("fabric-language-kotlin")
+		requires("yacl")
+		optional("modmenu")
 	}
 }
 
