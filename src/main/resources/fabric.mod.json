@@ -16,7 +16,6 @@
     "client": [
       {
         "value": "me.lumiafk.itemswap.ItemSwap::onInitializeClient",
-        "side": "client",
         "adapter": "kotlin"
       }
     ],
