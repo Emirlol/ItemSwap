@@ -44,7 +44,7 @@ object ItemSwap {
 						val (invSlot, hotbarSlot) = string.replace(" ", "").split('>')
 						client.interactionManager?.clickSlot(screen.screenHandler.syncId, invSlot.toInt(), hotbarSlot.toInt() - 1, SlotActionType.SWAP, client.player)
 					} else {
-						logger.warn("Invalid config value: $string")
+						logger.warn("Invalid config value: \"$string\"")
 					}
 				}
 			}
