@@ -3,7 +3,7 @@
   "id": "${mod_id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "Self-descriptive.",
+  "description": "Swap items within your inventory with hotbar slots without hovering over them!",
   "authors": [
     "Lumiafk"
   ],
