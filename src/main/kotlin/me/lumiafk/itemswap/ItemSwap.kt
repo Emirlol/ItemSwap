@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command
 import it.unimi.dsi.fastutil.ints.IntIntImmutablePair
 import kotlinx.coroutines.*
 import me.lumiafk.itemswap.Util.sendString
-import me.lumiafk.itemswap.Util.text
 import me.lumiafk.itemswap.config.ConfigHandler
 import me.lumiafk.itemswap.config.ConfigHandler.config
 import me.lumiafk.itemswap.mixin.HandledScreenAccessor
@@ -22,9 +21,6 @@ import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.minecraft.screen.PlayerScreenHandler
 import net.minecraft.screen.slot.SlotActionType
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
 import net.minecraft.util.math.Vec2f
 import org.joml.Vector2i
 import org.lwjgl.glfw.GLFW

@@ -91,7 +91,13 @@ publishMods {
 	modLoaders.add("fabric")
 	type = STABLE
 	displayName = "Item Swap $modVersion for $minecraftVersion"
-	changelog = "Initial release"
+	changelog = """
+		## Mod Overhaul
+		Complete rewrite of the mod. Now, the configuration is much more fluid, and the mod renders stuff to indicate what is mapped to what.
+		- Added a key to configure slot swaps. Hold the key and drag your cursor to a valid slot and release the key to create a mapping. Now, when you use shift-click, the items in those 2 slots will swap. This is only possible between a hotbar slot and an inventory slot (including armor slots), so there's a maximum of 9 mappings possible at the same time.
+		- Added a key to reset the mappings. Press the key twice within 500ms (configurable) to reset all mappings.
+		- Updated some dependencies.
+	""".trimIndent()
 	modrinth {
 		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
 		projectId = "baQgLwO4"
@@ -100,6 +106,7 @@ publishMods {
 		requires("fabric-language-kotlin")
 		requires("yacl")
 		optional("modmenu")
+		featured = true
 	}
 }
 
