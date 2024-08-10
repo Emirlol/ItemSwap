@@ -1,12 +1,13 @@
 {
-  "key.${namespace}.1": "Key 1",
-  "key.${namespace}.2": "Key 2",
-  "key.${namespace}.3": "Key 3",
-  "key.${namespace}.4": "Key 4",
-  "key.${namespace}.5": "Key 5",
-  "key.${namespace}.6": "Key 6",
-  "key.${namespace}.7": "Key 7",
-  "key.${namespace}.8": "Key 8",
-  "key.${namespace}.9": "Key 9",
+  "key.${namespace}.reset": "Reset Slot Mappings (double tap)",
+  "key.${namespace}.configure": "Configure Slot Mappings",
+  "config.${namespace}.enabled": "Enable Item Swap",
+  "config.${namespace}.waitTime": "Reset Wait Time",
+  "config.${namespace}.waitTime.description[0]": "The time margin for the double tap to reset slot mappings.",
+  "config.${namespace}.waitTime.description[1]": "e.g., once you press the key, you have %d milliseconds to press it again for the reset to go through. This is to prevent accidental resets.",
+  "config.${namespace}.sourceSlotColor": "Source Slot Color",
+  "config.${namespace}.targetSlotColor": "Target Slot Color",
+
+
   "category.${namespace}.main": "Item Swap"
 }
