@@ -1,24 +1,23 @@
 package me.lumiafk.itemswap.config
 
 import dev.isxander.yacl3.config.v2.api.SerialEntry
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import java.awt.Color
 
 class Config {
-    @SerialEntry
-    var key1 = ""
-    @SerialEntry
-    var key2 = ""
-    @SerialEntry
-    var key3 = ""
-    @SerialEntry
-    var key4 = ""
-    @SerialEntry
-    var key5 = ""
-    @SerialEntry
-    var key6 = ""
-    @SerialEntry
-    var key7 = ""
-    @SerialEntry
-    var key8 = ""
-    @SerialEntry
-    var key9 = ""
+	@SerialEntry
+	var enabled = true
+
+	@SerialEntry
+	var slotSquareMap = ObjectArrayList<IntIntImmutablePair>(9) // Hotbar slot count
+
+	@SerialEntry
+	var sourceSlotColor = Color(0xE86DFF)
+
+	@SerialEntry
+	var targetSlotColor = Color(0xFFBB00)
+
+	@SerialEntry
+	var waitTime = 500L
 }

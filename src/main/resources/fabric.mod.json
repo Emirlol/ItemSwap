@@ -4,6 +4,12 @@
   "version": "${version}",
   "name": "${name}",
   "description": "Swap items within your inventory with hotbar slots without hovering over them!",
+  "mixins": [
+    {
+      "config": "itemswap.mixins.json",
+      "environment": "client"
+    }
+  ],
   "authors": [
     "Lumiafk"
   ],
