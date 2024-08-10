@@ -22,13 +22,12 @@ object Util {
 		RenderSystem.depthMask(false)
 		RenderSystem.disableCull()
 		RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram)
-		val bufferBuilder = Tessellator.getInstance().buffer
-		bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES)
+		val bufferBuilder = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES)
 		RenderSystem.lineWidth(lineWidth)
 		val normal = to.add(from.negate()).normalize()
 
-		bufferBuilder.vertex(from.x.toDouble(), from.y.toDouble(), 0.0).color(fromColor).normal(normal.x, normal.y, 0.0F).next()
-		bufferBuilder.vertex(to.x.toDouble(), to.y.toDouble(), 0.0).color(toColor).normal(normal.x, normal.y, 0.0F).next()
+		bufferBuilder.vertex(from.x, from.y, 0.0F).color(fromColor).normal(normal.x, normal.y, 0.0F)
+		bufferBuilder.vertex(to.x, to.y, 0.0F).color(toColor).normal(normal.x, normal.y, 0.0F)
 
 		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end())
 		GL11.glDisable(GL11.GL_LINE_SMOOTH)
