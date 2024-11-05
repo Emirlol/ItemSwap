@@ -1,9 +1,10 @@
 package me.lumiafk.itemswap.config
 
+import dev.isxander.yacl3.api.OptionEventListener
+import dev.isxander.yacl3.api.StateManager
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder
 import dev.isxander.yacl3.dsl.*
-import kotlinx.coroutines.cancel
 import me.lumiafk.itemswap.ItemSwap
 import me.lumiafk.itemswap.Util.text
 import net.fabricmc.loader.api.FabricLoader
@@ -34,30 +35,36 @@ object ConfigHandler {
 			name(Text.translatable("category.${ItemSwap.NAMESPACE}.main"))
 
 			val enabled by rootOptions.registering {
+				val stateManager = StateManager.createSimple(defaults.enabled, { config.enabled }, { config.enabled = it})
 				name(Text.translatable("config.${ItemSwap.NAMESPACE}.enabled"))
-				binding(config::enabled, defaults.enabled)
-				instant(true)
+				stateManager(stateManager)
 				val sourceSlotColor by rootOptions.futureRef<Color>()
 				val targetSlotColor by rootOptions.futureRef<Color>()
 				val resetCounter by rootOptions.futureRef<Long>()
-				listener { _, value ->
+				stateManager.addListener { _, newValue ->
 					sourceSlotColor.onReady {
-						it.setAvailable(value)
+						it.setAvailable(newValue)
 					}
 					targetSlotColor.onReady {
-						it.setAvailable(value)
+						it.setAvailable(newValue)
 					}
 					resetCounter.onReady {
-						it.setAvailable(value)
-					}
-					if (value) {
-						ItemSwap.initGlobalJob()
-					} else {
-						ItemSwap.globalJob?.cancel()
-						ItemSwap.globalJob = null
+						it.setAvailable(newValue)
 					}
 				}
-
+				addListener { _, event ->
+					if (event == OptionEventListener.Event.INITIAL) {
+						sourceSlotColor.onReady {
+							it.setAvailable(stateManager.get())
+						}
+						targetSlotColor.onReady {
+							it.setAvailable(stateManager.get())
+						}
+						resetCounter.onReady {
+							it.setAvailable(stateManager.get())
+						}
+					}
+				}
 				controller(tickBox())
 			}
 			val sourceSlotColor by rootOptions.registering {
@@ -79,7 +86,7 @@ object ConfigHandler {
 					)
 				}
 				binding(config::waitTime, defaults.waitTime)
-				controller(slider(100L..1500L))
+				controller(slider(100L..3000L))
 			}
 		}
 	}.generateScreen(parent)
