@@ -32,11 +32,11 @@ typealias Point = Vec2f
 object ItemSwap {
 	const val NAME = "Item Swap"
 	const val NAMESPACE = "itemswap"
-	val logger: Logger = LoggerFactory.getLogger("ItemSwap")
-	val CONFIGURE_KEY = KeyBinding("key.$NAMESPACE.configure", GLFW.GLFW_KEY_L, "category.$NAMESPACE.main")
-	val RESET_KEY = KeyBinding("key.$NAMESPACE.reset", GLFW.GLFW_KEY_UNKNOWN, "category.$NAMESPACE.main")
-	val keys = listOf(CONFIGURE_KEY, RESET_KEY)
-	var globalJob: CoroutineScope? = null
+	private val logger: Logger = LoggerFactory.getLogger("ItemSwap")
+	private val CONFIGURE_KEY = KeyBinding("key.$NAMESPACE.configure", GLFW.GLFW_KEY_L, "category.$NAMESPACE.main")
+	private val RESET_KEY = KeyBinding("key.$NAMESPACE.reset", GLFW.GLFW_KEY_UNKNOWN, "category.$NAMESPACE.main")
+	private val keys = listOf(CONFIGURE_KEY, RESET_KEY)
+	private var globalJob = CoroutineScope(SupervisorJob() + CoroutineName("SlotSwap"))
 	private val slotMap get() = config.slotSquareMap
 
 	//This field is used instead of the field in MinecraftClient, so we don't have to type check the current screen every time.
@@ -53,19 +53,14 @@ object ItemSwap {
 	//These 2 aren't configurable, just because
 	private const val CONFIGURING_SOURCE_SLOT_COLOR = 0xFF993AFF.toInt()
 	private const val CONFIGURING_TARGET_SLOT_COLOR = 0xFFFF9214.toInt()
-	private const val LINE_WIDTH = 2f
 	private const val OFFSET_TO_CENTER = 1f // This is needed because SlotSquares' x and y values are 1 less than what they should be for being visually in the center.
 
-	fun initGlobalJob() {
-		globalJob = CoroutineScope(SupervisorJob() + CoroutineName("SlotSwap"))
-	}
 
 	@Suppress("unused")
 	fun onInitializeClient() {
 		check(ConfigHandler.load()) { "Failed to load config." }
-		if (config.enabled) initGlobalJob()
 		ClientLifecycleEvents.CLIENT_STOPPING.register {
-			globalJob?.cancel()
+			globalJob.cancel()
 			logger.info("Cancelling all coroutines.")
 		}
 		ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
@@ -150,7 +145,7 @@ object ItemSwap {
 				}
 				client.player?.sendString("Press the reset key again within ${config.waitTime}ms to confirm resetting all slot mappings.")
 				shouldResetOnNextKey = true
-				waitJob = globalJob?.launch {
+				waitJob = globalJob.launch {
 					delay(config.waitTime)
 					shouldResetOnNextKey = false //Resets back to the initial state after waitTime ms, but if the keybinding is pressed again then this timeout is canceled and the reset happens
 				}
@@ -181,7 +176,7 @@ object ItemSwap {
 		drawContext.drawBorder(pos2.x, pos2.y, SLOT_SIZE, SLOT_SIZE, targetColor) // Target slot
 
 		//Draws a line between the two slots' centers
-		Util.renderLine(getCenterFromPos(pos1), getCenterFromPos(pos2), sourceColor, targetColor, LINE_WIDTH)
+		Util.renderLine(getCenterFromPos(pos1), getCenterFromPos(pos2), sourceColor, targetColor)
 		//Todo: Find out the intersection point of the line and the square and render from that instead of the center as it looks ugly
 		//Disclaimer: Maths is hard
 	}
