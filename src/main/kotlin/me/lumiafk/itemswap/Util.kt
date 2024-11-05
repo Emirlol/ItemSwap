@@ -1,10 +1,9 @@
 package me.lumiafk.itemswap
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.render.BufferRenderer
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.text.Text
@@ -21,7 +20,7 @@ object Util {
 		GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
 		RenderSystem.depthMask(false)
 		RenderSystem.disableCull()
-		RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram)
+		RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_LINES)
 		val bufferBuilder = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES)
 		RenderSystem.lineWidth(lineWidth)
 		val normal = to.add(from.negate()).normalize()
