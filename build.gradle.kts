@@ -74,9 +74,10 @@ publishMods {
 	file = tasks.remapJar.get().archiveFile
 	modLoaders.add("fabric")
 	type = STABLE
-	displayName = "Item Swap ${libs.versions.modVersion} for ${libs.versions.minecraft}"
+	displayName = "Item Swap ${libs.versions.modVersion.get()} for ${libs.versions.minecraft.get()}"
 	changelog = """
-		
+		- Added support for 1.21.3
+		- Updated dependencies and changed how the config works slightly
 	""".trimIndent()
 	modrinth {
 		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
