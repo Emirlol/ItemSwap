@@ -2,10 +2,10 @@
 modVersion = "2.0.1"
 
 # Required stuff, https://modmuss50.me/fabric.html
-minecraft = "1.21.1"
-yarnMappings = "1.21.1+build.3"
+minecraft = "1.21.3"
+yarnMappings = "1.21.3+build.2"
 fabricLoader = "0.16.9"
-fabricApi = "0.107.0+1.21.1"
+fabricApi = "0.107.0+1.21.3"
 
 fabricLanguageKotlin = "1.12.3+kotlin.2.0.21" # https://github.com/FabricMC/fabric-language-kotlin/releases
 
@@ -15,8 +15,8 @@ loom = "1.8-SNAPSHOT" # https://github.com/FabricMC/fabric-loom/releases
 modPublish = "0.7.4" # https://github.com/modmuss50/mod-publish-plugin
 
 # Other dependencies
-modMenu = "11.0.3" # https://github.com/TerraformersMC/ModMenu/releases
-yacl = "3.6.1+1.21-fabric" # https://modrinth.com/mod/yacl/versions
+modMenu = "12.0.0-beta.1" # https://github.com/TerraformersMC/ModMenu/releases
+yacl = "3.6.1+1.21.2-fabric" # https://modrinth.com/mod/yacl/versions
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
