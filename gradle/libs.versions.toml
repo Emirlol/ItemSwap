@@ -1,5 +1,5 @@
 [versions]
-modVersion = "2.0.1"
+modVersion = "2.0.2"
 
 # Required stuff, https://modmuss50.me/fabric.html
 minecraft = "1.21.3"

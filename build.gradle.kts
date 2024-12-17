@@ -76,13 +76,12 @@ publishMods {
 	type = STABLE
 	displayName = "Item Swap ${libs.versions.modVersion.get()} for ${libs.versions.minecraft.get()}"
 	changelog = """
-		- Added support for 1.21.3
-		- Updated dependencies and changed how the config works slightly
+		- Added support for 1.21.4
 	""".trimIndent()
 	modrinth {
 		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
 		projectId = "baQgLwO4"
-		minecraftVersions.addAll("1.21.2", "1.21.3")
+		minecraftVersions.addAll("1.21.2", "1.21.3", "1.21.4")
 		requires("fabric-api")
 		requires("fabric-language-kotlin")
 		requires("yacl")
