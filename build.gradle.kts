@@ -76,7 +76,7 @@ publishMods {
 	type = STABLE
 	displayName = "Item Swap ${libs.versions.modVersion.get()} for ${libs.versions.minecraft.get()}"
 	changelog = """
-		- Added support for 1.21.4
+		
 	""".trimIndent()
 	modrinth {
 		accessToken = providers.environmentVariable("MODRINTH_TOKEN")

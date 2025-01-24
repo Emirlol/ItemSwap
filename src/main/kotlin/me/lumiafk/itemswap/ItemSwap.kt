@@ -1,12 +1,21 @@
+@file:Suppress("UnstableApiUsage")
+
 package me.lumiafk.itemswap
 
 import com.mojang.brigadier.Command
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair
+import dev.isxander.yacl3.config.v3.value
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import kotlinx.coroutines.*
-import me.lumiafk.itemswap.Util.sendString
+import me.lumiafk.itemswap.Util.isHotbarSlot
+import me.lumiafk.itemswap.Util.player
+import me.lumiafk.itemswap.Util.sendError
+import me.lumiafk.itemswap.Util.sendSuccess
+import me.lumiafk.itemswap.Util.sendWarning
 import me.lumiafk.itemswap.config.ConfigHandler
-import me.lumiafk.itemswap.config.ConfigHandler.config
+import me.lumiafk.itemswap.config.config
 import me.lumiafk.itemswap.mixin.HandledScreenAccessor
+import me.lumiafk.itemswap.slotswap.SlotSwap
+import me.lumiafk.itemswap.slotswap.SlotSwapChain
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
@@ -20,7 +29,6 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.minecraft.screen.PlayerScreenHandler
-import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.util.math.Vec2f
 import org.joml.Vector2i
 import org.lwjgl.glfw.GLFW
@@ -34,10 +42,11 @@ object ItemSwap {
 	const val NAMESPACE = "itemswap"
 	private val logger: Logger = LoggerFactory.getLogger("ItemSwap")
 	private val CONFIGURE_KEY = KeyBinding("key.$NAMESPACE.configure", GLFW.GLFW_KEY_L, "category.$NAMESPACE.main")
+	private val DELETE_CHAIN_KEY = KeyBinding("key.$NAMESPACE.deleteChain", GLFW.GLFW_KEY_DELETE, "category.$NAMESPACE.main")
 	private val RESET_KEY = KeyBinding("key.$NAMESPACE.reset", GLFW.GLFW_KEY_UNKNOWN, "category.$NAMESPACE.main")
 	private val keys = listOf(CONFIGURE_KEY, RESET_KEY)
 	private var globalJob = CoroutineScope(SupervisorJob() + CoroutineName("SlotSwap"))
-	private val slotMap get() = config.slotSquareMap
+	private val slotSwaps get() = ConfigHandler.slotSwapChains.value
 
 	//This field is used instead of the field in MinecraftClient, so we don't have to type check the current screen every time.
 	private var currentScreen: InventoryScreen? = null
@@ -55,10 +64,9 @@ object ItemSwap {
 	private const val CONFIGURING_TARGET_SLOT_COLOR = 0xFFFF9214.toInt()
 	private const val OFFSET_TO_CENTER = 1f // This is needed because SlotSquares' x and y values are 1 less than what they should be for being visually in the center.
 
-
 	@Suppress("unused")
 	fun onInitializeClient() {
-		check(ConfigHandler.load()) { "Failed to load config." }
+		ConfigHandler.load()
 		ClientLifecycleEvents.CLIENT_STOPPING.register {
 			globalJob.cancel()
 			logger.info("Cancelling all coroutines.")
@@ -66,21 +74,22 @@ object ItemSwap {
 		ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
 			dispatcher.register(
 				literal(NAMESPACE)
-					.then(literal("config")
-						.executes { context ->
-							context.source.client.let {
-								it.send {
-									it.setScreen(ConfigHandler.createGui(it.currentScreen))
+					.then(
+						literal("config")
+							.executes { context ->
+								context.source.client.let {
+									it.send {
+										it.setScreen(ConfigHandler.createGui(it.currentScreen))
+									}
 								}
-							}
-							Command.SINGLE_SUCCESS
-						})
+								Command.SINGLE_SUCCESS
+							})
 			)
 		}
 		registerKeys()
 		ScreenEvents.AFTER_INIT.register { client, screen, _, _ ->
 			//Since this event is called for each screen, we can just check the config enabled status here once and for all
-			if (screen !is InventoryScreen || !config.enabled) return@register
+			if (screen !is InventoryScreen || !config.enabled.value) return@register
 			currentScreen = screen
 			ScreenKeyboardEvents.afterKeyPress(screen).register { _, key, scancode, _ ->
 				onKeyPress(screen, key, scancode)
@@ -100,18 +109,17 @@ object ItemSwap {
 		}
 	}
 
+	/**
+	 * @return Whether the mouse click should be allowed
+	 */
 	private fun onMouseClick(client: MinecraftClient, screen: InventoryScreen, button: Int): Boolean {
-		if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT || !InputUtil.isKeyPressed(client.window.handle, GLFW.GLFW_KEY_LEFT_SHIFT)) return true
-
-		val entry: IntIntImmutablePair = screen.accessor.focusedSlot?.id?.let { id ->
-			slotMap.firstOrNull { pair -> pair.keyInt() == id || pair.valueInt() == id }
-		} ?: return true
-
-		if (isHotbarSlot(entry.keyInt())) {
-			client.interactionManager?.clickSlot(screen.screenHandler.syncId, entry.valueInt(), entry.keyInt() - 36, SlotActionType.SWAP, client.player)
-			return false
-		} else if (isHotbarSlot(entry.valueInt())) {
-			client.interactionManager?.clickSlot(screen.screenHandler.syncId, entry.keyInt(), entry.valueInt() - 36, SlotActionType.SWAP, client.player)
+		if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT && button != GLFW.GLFW_MOUSE_BUTTON_RIGHT) return true
+		val slotId = screen.getFocusedSlotId() ?: return true
+		val entry = slotSwaps.firstOrNull { it.isSlotInChain(slotId) } ?: return true
+		if (InputUtil.isKeyPressed(client.window.handle, GLFW.GLFW_KEY_LEFT_SHIFT)) {
+			return !entry.nextSlotSwap().swap(screen) // Only cancel the event if the swap was successful
+		} else if (InputUtil.isKeyPressed(client.window.handle, GLFW.GLFW_KEY_LEFT_CONTROL)) {
+			entry.currentState = 0
 			return false
 		}
 		return true
@@ -126,7 +134,8 @@ object ItemSwap {
 		when {
 			CONFIGURE_KEY.matchesKey(key, scancode) -> {
 				val slotAtKeyRelease = screen.getFocusedSlotId()
-				if (slotAtKeyPress != null && slotAtKeyRelease != null && slotAtKeyPress != slotAtKeyRelease
+				if (slotAtKeyPress != null && slotAtKeyRelease != null
+					&& slotAtKeyPress != slotAtKeyRelease
 					&& (isHotbarSlot(slotAtKeyPress!!) || isHotbarSlot(slotAtKeyRelease))
 				) { // At least one slot has to be in the hotbar
 					addSlotMapping(slotAtKeyPress!!, slotAtKeyRelease)
@@ -137,26 +146,37 @@ object ItemSwap {
 
 			RESET_KEY.matchesKey(key, scancode) -> {
 				if (shouldResetOnNextKey) {
-					client.player?.sendString("Successfully reset all slot mappings.")
+					client.player?.sendSuccess("Successfully reset all slot mappings.")
 					logger.info("Reset all slot mappings.")
-					logger.info("All mappings before reset: $slotMap")
+					logger.info("All mappings before reset: $slotSwaps")
 					reset()
 					return
 				}
-				client.player?.sendString("Press the reset key again within ${config.waitTime}ms to confirm resetting all slot mappings.")
+				client.player?.sendWarning("Press the reset key again within ${config.waitTime.value}ms to confirm resetting all slot mappings.")
 				shouldResetOnNextKey = true
 				waitJob = globalJob.launch {
-					delay(config.waitTime)
+					delay(config.waitTime.value)
 					shouldResetOnNextKey = false //Resets back to the initial state after waitTime ms, but if the keybinding is pressed again then this timeout is canceled and the reset happens
 				}
+			}
+
+			DELETE_CHAIN_KEY.matchesKey(key, scancode) -> {
+				val slotId = screen.getFocusedSlotId() ?: return
+				val chain = slotSwaps.firstOrNull { it.isSlotInChain(slotId) } ?: return
+				slotSwaps.remove(chain)
+				ConfigHandler.saveToFile()
+				client.player?.sendSuccess("Successfully removed the slot mapping chain.")
+				logger.info("Removed slot mapping chain: $chain")
 			}
 		}
 	}
 
 	private fun render(screen: InventoryScreen, drawContext: DrawContext) {
 		//Slot mappings
-		for (entry in slotMap) {
-			renderRectanglesAndLine(drawContext, entry.keyInt(), entry.valueInt(), config.sourceSlotColor.rgb, config.targetSlotColor.rgb)
+		for (chain in slotSwaps) {
+			for ((from, to) in chain) {
+				renderRectanglesAndLine(drawContext, from, to, config.sourceSlotColor.value.rgb, config.targetSlotColor.value.rgb)
+			}
 		}
 		//Configuring state
 		if (slotAtKeyPress == null) return
@@ -182,8 +202,8 @@ object ItemSwap {
 	}
 
 	private fun reset() {
-		slotMap.clear()
-		ConfigHandler.save()
+		slotSwaps.clear()
+		ConfigHandler.saveToFile()
 		slotAtKeyPress = null
 		waitJob?.cancel()
 		waitJob = null
@@ -192,13 +212,66 @@ object ItemSwap {
 
 	private fun isSlotValid(slotId: Int) = slotId in PlayerScreenHandler.EQUIPMENT_START..<PlayerScreenHandler.HOTBAR_END
 
-	private fun isHotbarSlot(slotId: Int) = slotId in PlayerScreenHandler.HOTBAR_START..<PlayerScreenHandler.HOTBAR_END
+	private fun addSlotMapping(from: Int, to: Int) {
+		val existingFrom = slotSwaps.firstOrNull { it.isSlotInChain(from) }
+		val existingTo = slotSwaps.firstOrNull { it.isSlotInChain(to) }
 
-	private fun addSlotMapping(source: Int, aimed: Int) {
-		//Remove all mappings that are related to these keys
-		slotMap.removeAll { pair -> pair.keyInt() == source || pair.valueInt() == source || pair.keyInt() == aimed || pair.valueInt() == aimed }
-		slotMap += IntIntImmutablePair.of(source, aimed)
-		ConfigHandler.save()
+		// These checks can be done more concisely by not repeatedly checking the same conditions, but this is much easier to read and follow along.
+		when {
+			existingFrom != null && existingTo != null && existingFrom != existingTo -> {
+				player?.sendError("You can't mix two different chains of slot swaps.")
+				return
+			}
+			existingFrom != null && existingTo != null && existingFrom == existingTo -> {
+				when {
+					existingFrom.isSlotFull(from) -> {
+						player?.sendError("The source slot is already fully mapped. (Each slot can only have 2 mappings, 1 outgoing and 1 incoming)")
+						return
+					}
+					existingFrom.isSlotMappedFrom(from) -> {
+						player?.sendError("The source slot is already mapped from. It can only be mapped to from another slot.")
+						return
+					}
+					existingTo.isSlotMappedTo(to) -> {
+						player?.sendError("The target slot is already mapped to. It can only be mapped from to another slot.")
+						return
+					}
+					else -> existingFrom += SlotSwap(from, to)
+				}
+				return
+			}
+			existingFrom != null && existingTo == null -> {
+				when {
+					existingFrom.isSlotFull(from) -> {
+						player?.sendError("The source slot is already fully mapped. (Each slot can only have 2 mappings, 1 outgoing and 1 incoming)")
+						return
+					}
+					existingFrom.isSlotMappedFrom(from) -> {
+						player?.sendError("The source slot is already mapped from. It can only be mapped to from another slot.")
+						return
+					}
+					else -> existingFrom += SlotSwap(from, to)
+				}
+			}
+			existingFrom == null && existingTo != null -> {
+				when {
+					existingTo.isSlotFull(to) -> {
+						player?.sendError("The target slot is already fully mapped. (Each slot can only have 2 mappings, 1 outgoing and 1 incoming)")
+						return
+					}
+					existingTo.isSlotMappedTo(to) -> {
+						player?.sendError("The target slot is already mapped to. It can only be mapped from to another slot.")
+						return
+					}
+					else -> existingTo += SlotSwap(from, to)
+				}
+			}
+			existingFrom == null && existingTo == null -> {
+				slotSwaps += SlotSwapChain(ObjectArrayList<SlotSwap>().also { it += SlotSwap(from, to) })
+			}
+		}
+
+		ConfigHandler.saveToFile()
 	}
 
 	private fun getPosFromSlotId(slotId: Int) = currentScreen?.screenHandler?.getSlot(slotId)?.let { slot ->
@@ -210,5 +283,5 @@ object ItemSwap {
 
 	private fun getCenterFromPos(pos: Vector2i) = Point(pos.x + HALF_SLOT_SIZE + OFFSET_TO_CENTER, pos.y + HALF_SLOT_SIZE + OFFSET_TO_CENTER)
 
-	private fun registerKeys() = keys.forEach { KeyBindingHelper.registerKeyBinding(it) }
+	private fun registerKeys() = keys.forEach(KeyBindingHelper::registerKeyBinding)
 }

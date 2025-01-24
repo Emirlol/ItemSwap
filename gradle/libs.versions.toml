@@ -1,18 +1,18 @@
 [versions]
-modVersion = "2.0.2"
+modVersion = "2.1.0"
 
-# Required stuff, https://modmuss50.me/fabric.html
+# Required stuff, https://fabricmc.net/develop/
 minecraft = "1.21.3"
 yarnMappings = "1.21.3+build.2"
-fabricLoader = "0.16.9"
+fabricLoader = "0.16.10"
 fabricApi = "0.107.0+1.21.3"
 
-fabricLanguageKotlin = "1.12.3+kotlin.2.0.21" # https://github.com/FabricMC/fabric-language-kotlin/releases
+fabricLanguageKotlin = "1.13.0+kotlin.2.1.0" # https://github.com/FabricMC/fabric-language-kotlin/releases
 
 # Plugins
-kotlin = "2.0.21" # Match this to the one above
-loom = "1.8-SNAPSHOT" # https://github.com/FabricMC/fabric-loom/releases
-modPublish = "0.7.4" # https://github.com/modmuss50/mod-publish-plugin
+kotlin = "2.1.0" # Match this to the one above
+loom = "1.9-SNAPSHOT" # https://github.com/FabricMC/fabric-loom/releases
+modPublish = "0.8.3" # https://github.com/modmuss50/mod-publish-plugin
 
 # Other dependencies
 modMenu = "12.0.0-beta.1" # https://github.com/TerraformersMC/ModMenu/releases

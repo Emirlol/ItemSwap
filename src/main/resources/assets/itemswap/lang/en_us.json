@@ -1,13 +1,13 @@
 {
   "key.${namespace}.reset": "Reset Slot Mappings (double tap)",
   "key.${namespace}.configure": "Configure Slot Mappings",
+  "key.${namespace}.deleteChain": "Delete Slot Swap Chain",
   "config.${namespace}.enabled": "Enable Item Swap",
   "config.${namespace}.waitTime": "Reset Wait Time",
   "config.${namespace}.waitTime.description[0]": "The time margin for the double tap to reset slot mappings.",
   "config.${namespace}.waitTime.description[1]": "e.g., once you press the key, you have %d milliseconds to press it again for the reset to go through. This is to prevent accidental resets.",
   "config.${namespace}.sourceSlotColor": "Source Slot Color",
   "config.${namespace}.targetSlotColor": "Target Slot Color",
-
 
   "category.${namespace}.main": "Item Swap"
 }
