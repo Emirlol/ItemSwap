@@ -1,42 +1,42 @@
 {
-  "schemaVersion": 1,
-  "id": "${mod_id}",
-  "version": "${version}",
-  "name": "${name}",
-  "description": "Swap items within your inventory with hotbar slots without hovering over them!",
-  "mixins": [
-    {
-      "config": "itemswap.mixins.json",
-      "environment": "client"
-    }
-  ],
-  "authors": [
-    "Lumiafk"
-  ],
-  "contact": {
-    "sources": "https://github.com/Emirlol/ItemSwap",
-    "issues": "https://github.com/Emirlol/ItemSwap/issues",
-    "homepage": "https://modrinth.com/project/itemswap"
-  },
-  "license": "WTFPL",
-  "environment": "client",
-  "entrypoints": {
-    "client": [
-      {
-        "value": "me.lumiafk.itemswap.ItemSwap::onInitializeClient",
-        "adapter": "kotlin"
-      }
-    ],
-    "modmenu": [ "me.lumiafk.itemswap.modmenu.ModMenuApiImpl" ]
-  },
-  "depends": {
-    "fabricloader": ">=${loader_version}",
-    "fabric": "*",
-    "minecraft": ">=1.21.2 <=1.21.4",
-    "fabric-language-kotlin": ">=${fabric_kotlin_version}",
-    "yet_another_config_lib_v3": ">=${yacl_version}"
-  },
-  "suggests": {
-    "modmenu": ">=${modmenu_version}"
-  }
+	"schemaVersion": 1,
+	"id": "${mod_id}",
+	"version": "${version}",
+	"name": "${name}",
+	"description": "Swap items within your inventory with hotbar slots easily!",
+	"mixins": [
+		{
+			"config": "itemswap.mixins.json",
+			"environment": "client"
+		}
+	],
+	"authors": [
+		"Rime"
+	],
+	"contact": {
+		"sources": "https://github.com/Emirlol/ItemSwap",
+		"issues": "https://github.com/Emirlol/ItemSwap/issues",
+		"homepage": "https://modrinth.com/project/itemswap"
+	},
+	"license": "WTFPL",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			{
+				"value": "me.lumiafk.itemswap.ItemSwap::onInitializeClient",
+				"adapter": "kotlin"
+			}
+		],
+		"modmenu": [ "me.lumiafk.itemswap.modmenu.ModMenuApiImpl" ]
+	},
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"fabric": "*",
+		"minecraft": "1.21.5",
+		"fabric-language-kotlin": ">=${fabric_kotlin_version}",
+		"yet_another_config_lib_v3": ">=${yacl_version}"
+	},
+	"suggests": {
+		"modmenu": ">=${modmenu_version}"
+	}
 }
